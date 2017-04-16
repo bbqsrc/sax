@@ -1,0 +1,611 @@
+swagger: '2.0'
+info:
+  title: Mastodon
+  description: No time for birdsite.
+  version: "0.1.0"
+host: mastodon.social
+schemes:
+  - https
+basePath: /api/v1
+consumes:
+  - application/x-www-form-urlencoded
+produces:
+  - application/json
+securityDefinitions:
+  oauth:
+    type: oauth2
+    tokenUrl: "https://mastodon.social/oauth/token"
+    flow: application
+    scopes:
+      write: ""
+      read: ""
+      follow: ""
+security:
+  oauth: [read, write, follow]
+paths:
+  /accounts/{id}:
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+        description: Account identifier
+    get:
+      summary: Get Account
+      operationId: getAccount
+      responses:
+        200:
+          description: Returns an Account
+          schema:
+            $ref: "#/definitions/Account"
+  /accounts/verify_credentials:
+    get:
+      summary: Verify Credentials
+      operationId: verifyCredentials
+      responses:
+        200:
+          description: Returns the current user's Account
+          schema:
+            $ref: "#/definitions/Account"
+  /accounts/{id}/followers: {}
+  /accounts/{id}/following: {}
+  /accounts/{id}/statuses: {}
+  /accounts/{id}/follow: {}
+  /accounts/{id}/unfollow: {}
+  /accounts/{id}/block: {}
+  /accounts/{id}/unblock: {}
+  /accounts/{id}/mute: {}
+  /accounts/{id}/unmute: {}
+  /accounts/relationships: {}
+  /accounts/search: {}
+  /apps:
+    post:
+      summary: Register Application
+      operationId: registerApplication
+      security: {}
+      parameters:
+        - name: client_name
+          in: formData
+          type: string
+          required: true
+          description: Name of your application
+        - name: redirect_uris
+          in: formData
+          type: string
+          required: true
+          default: "urn:ietf:wg:oauth:2.0:oob"
+          description: Where the user should be redirected after authorization (for no redirect, use urn:ietf:wg:oauth:2.0:oob)
+        - name: scopes
+          in: formData
+          type: string
+          required: true
+          description: "This can be a space-separated list of the following items: read, write, follow"
+        - name: website
+          in: formData
+          type: string
+          description: (optional) URL to the homepage of your app
+      responses:
+        200:
+          description: OAuth Response
+          schema:
+            $ref: "#/definitions/OAuthResponse"
+  /blocks: {}
+  /favourites: {}
+  /follow_requests: {}
+  /follow_requests/authorize: {}
+  /follow_requests/reject: {}
+  /follows: {}
+  /instance: {}
+  /media: {}
+  /mutes: {}
+  /notifications:
+    get:
+      operationId: getNotifications
+      summary: Get Notifications
+      responses:
+        200:
+          description: Notifications
+          schema:
+            $ref: "#/definitions/Notifications"
+  /notifications/{id}: {}
+  /notifications/clear: {}
+  /reports: {}
+  /search: {}
+  /statuses:
+    post:
+      operationId: postStatus
+      summary: Post Status
+      parameters:
+        - name: body
+          in: body
+          description: The post body
+          required: true
+          schema:
+            $ref: "#/definitions/StatusRequest"
+      responses:
+        200:
+          description: Status
+          schema:
+            $ref: "#/definitions/Status"
+    
+  /statuses/{id}:
+    get:
+      operationId: getStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: Status identifier
+      responses:
+        200:
+          description: Status
+          schema:
+            $ref: "#/definitions/Status"
+  /statuses/{id}/contexts: {}
+  /statuses/{id}/card: {}
+  /statuses/{id}/reblogged_by: {}
+  /statuses/{id}/favourited_by: {}
+  /statuses/{id}/reblog:
+    post:
+      operationId: reblog
+      summary: Reblog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: Status identifier
+      responses:
+        200:
+          description: Status
+          schema:
+            $ref: "#/definitions/Status"
+  /statuses/{id}/unreblog:
+    post:
+      operationId: unreblog
+      summary: Unreblog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: Status identifier
+      responses:
+        200:
+          description: Status
+          schema:
+            $ref: "#/definitions/Status"
+  /statuses/{id}/favourite:
+    post:
+      operationId: favourite
+      summary: Favourite
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: Status identifier
+      responses:
+        200:
+          description: Status
+          schema:
+            $ref: "#/definitions/Status"
+  /statuses/{id}/unfavourite:
+    post:
+      operationId: unfavourite
+      summary: Unfavourite
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: Status identifier
+      responses:
+        200:
+          description: Status
+          schema:
+            $ref: "#/definitions/Status"
+  /timelines/home:
+    get:
+      operationId: getHomeTimeline
+      summary: Get Home Timeline
+      description: >
+        Return the home timeline
+      parameters:
+        - name: max_id
+          in: query
+          description: The last Status the user already has
+          type: integer
+        - name: limit
+          in: query
+          description: Maximum number of Statuses to be returned
+          type: integer
+          default: 10
+      responses:
+        200:
+          description: Home timeline
+          schema:
+            $ref: "#/definitions/Timeline"
+
+  /timelines/public:
+    get:
+      operationId: getPublicTimeline
+      summary: Get Public Timeline
+      description: >
+        Return the public timeline
+      parameters:
+        - name: local
+          in: query
+          description: Whether or not to access local statuses only
+          type: boolean
+        - name: max_id
+          in: query
+          description: The last Status the user already has
+          type: integer
+        - name: limit
+          in: query
+          description: Maximum number of Statuses to be returned
+          type: integer
+          default: 10
+      responses:
+        200:
+          description: Public timeline
+          schema:
+            $ref: "#/definitions/Timeline"
+  /timelines/tag/:hashtag: {}
+definitions:
+  Account:
+    type: object
+    required:
+      - id
+      - username
+      - acct
+      - display_name
+      - note
+      - url
+      - locked
+      - created_at
+      - followers_count
+      - following_count
+      - statuses_count
+    properties:
+      id:
+        type: integer
+        description: The ID of the account
+      username:
+        type: string
+        description: The username of the account
+      acct:
+        type: string
+        description: Equals username for local users, includes @domain for remote ones
+      display_name:
+        type: string
+        description: The account's display name
+      note:
+        type: string
+        description: Biography of user
+      url:
+        type: string
+        description: URL of the user's profile page (can be remote)
+      avatar:
+        type: string
+        description: URL to the avatar image
+      header:
+        type: string
+        description: URL to the header image
+      locked:
+        type: boolean
+        description: Boolean for when the account cannot be followed without waiting for approval first
+      created_at:
+        type: string
+        description: The time the account was created
+      followers_count:
+        type: integer
+        description: The number of followers for the account
+      following_count:
+        type: integer
+        description: The number of accounts the given account is following
+      statuses_count:
+        type: integer
+        description: The number of statuses the account has made
+  Application:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        description: Name of the app
+      website:
+        type: string
+        description: Homepage URL of the app
+  Attachment:
+    type: object
+    required:
+      - type
+      - id
+    properties:
+      id:
+        type: integer
+        description: ID of the attachment
+      type:
+        type: string
+        enum: [image, video, gifv]
+        description: "One of: image, video, gifv"
+      url:
+        type: string
+        description: URL of the locally hosted version of the image
+      remote_url:
+        type: string
+        description: For remote images, the remote URL of the original image
+      preview_url:
+        type: string
+        description: URL of the preview image
+      text_url:
+        type: string
+        description: Shorter URL for the image, for insertion into text (only present on local images)
+  Card:
+    type: object
+    properties:
+      url:
+        type: string
+        description: The url associated with the card
+      title:
+        type: string
+        description: The title of the card
+      description:
+        type: string
+        description: The card description
+      image:
+        type: string
+        description: The image associated with the card, if any
+  Context:
+    type: object
+    properties:
+      ancestors:
+        type: array
+        description: The ancestors of the status in the conversation, as a list of Statuses
+        items:
+          $ref: "#/definitions/Status"
+      descendants:
+        type: array
+        description: The descendants of the status in the conversation, as a list of Statuses
+        items:
+          $ref: "#/definitions/Status"
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+        description: A textual description of the error
+  Instance:
+    type: object
+    properties:
+      uri:
+        type: string
+        description: URI of the current instance
+      title:
+        type: string
+        description: The instance's title
+      description:
+        type: string
+        description: A description for the instance
+      email:
+        type: string
+        description: An email address which can be used to contact the instance administrator
+  Mention:
+    type: object
+    properties:
+      url:
+        type: string
+        description: URL of user's profile (can be remote)
+      username:
+        type: string
+        description: The username of the account
+      acct:
+        type: string
+        description: Equals username for local users, includes @domain for remote ones
+      id:
+        type: string
+        description: Account ID
+  Notification:
+    type: object
+    required:
+      - id
+      - type
+      - created_at
+      - account
+    properties:
+      id:
+        type: integer
+        description: The notification ID
+      type:
+        type: string
+        enum: [mention, reblog, favourite, follow]
+        description: "One of: mention, reblog, favourite, follow"
+      created_at:
+        type: string
+        format: date-time
+        description: The time the notification was created
+      account:
+        description: The Account sending the notification to the user
+        $ref: "#/definitions/Account"
+      status:
+        description: The Status associated with the notification, if applicable
+        $ref: "#/definitions/Status"
+  Notifications:
+    type: array
+    items:
+      $ref: "#/definitions/Notification"
+  Relationships:
+    type: object
+    properties:
+      following:
+        type: string
+        description: Whether the user is currently following the account
+      followed_by:
+        type: string
+        description: Whether the user is currently being followed by the account
+      blocking:
+        type: string
+        description: Whether the user is currently blocking the account
+      muting:
+        type: string
+        description: Whether the user is currently muting the account
+      requested:
+        type: string
+        description: Whether the user has requested to follow the account
+  Report:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The ID of the report
+      action_taken:
+        type: string
+        description: The action taken in response to the report
+  Results:
+    type: object
+    properties:
+      accounts:
+        type: string
+        description: An array of matched Accounts
+      statuses:
+        type: string
+        description: An array of matched Statuses
+      hashtags:
+        type: string
+        description: An array of matched hashtags, as strings
+  StatusRequest:
+    type: object
+    required:
+      - status
+      - visibility
+    properties:
+      in_reply_to_id:
+        type: string
+      media_ids:
+        type: array
+        items:
+          type: integer
+      spoiler_text:
+        type: string
+      status:
+        type: string
+      sensitive:
+        type: boolean
+      visibility:
+        $ref: "#/definitions/Visibility"
+  Status:
+    type: object
+    required:
+      - id
+      - uri
+      - url
+      - account
+      - content
+      - created_at
+      - reblogs_count
+      - favourites_count
+      - spoiler_text
+      - visibility
+      - media_attachments
+      - mentions
+      - tags
+    properties:
+      id:
+        type: integer
+        description: The ID of the status
+      uri:
+        type: string
+        description: A Fediverse-unique resource ID
+      url:
+        type: string
+        description: URL to the status page (can be remote)
+      account:
+        $ref: "#/definitions/Account"
+        description: The Account which posted the status
+      in_reply_to_id:
+        type: string
+        description: null or the ID of the status it replies to
+      in_reply_to_account_id:
+        type: string
+        description: null or the ID of the account it replies to
+      reblog:
+        $ref: "#/definitions/Status"
+        description: null or the reblogged Status
+      content:
+        type: string
+        description: Body of the status; this will contain HTML (remote HTML already sanitized)
+      created_at:
+        type: string
+        description: The time the status was created
+      reblogs_count:
+        type: integer
+        description: The number of reblogs for the status
+      favourites_count:
+        type: integer
+        description: The number of favourites for the status
+      reblogged:
+        type: boolean
+        default: false
+        description: Whether the authenticated user has reblogged the status
+      favourited:
+        type: boolean
+        default: false
+        description: Whether the authenticated user has favourited the status
+      sensitive:
+        type: string
+        description: Whether media attachments should be hidden by default
+      spoiler_text:
+        type: string
+        description: If not empty, warning text that should be displayed before the actual content
+      visibility:
+        $ref: "#/definitions/Visibility"
+        description: "One of: public, unlisted, private, direct"
+      media_attachments:
+        type: array
+        description: An array of Attachments
+        items:
+          $ref: "#/definitions/Attachment"
+      mentions:
+        type: array
+        description: An array of Mentions
+        items:
+          $ref: "#/definitions/Mention"
+      tags:
+        type: array
+        description: An array of Tags
+        items:
+          $ref: "#/definitions/Tag"
+      application:
+        $ref: "#/definitions/Application"
+        description: Application from which the status was posted
+  Tag:
+    type: object
+    properties:
+      name:
+        type: string
+        description: The hashtag, not including the preceding "#"
+      url:
+        type: string
+        description: The URL of the hashtag
+  Timeline:
+    type: array
+    items:
+      $ref: "#/definitions/Status"
+  Visibility:
+    type: string
+    enum: [public, unlisted, private, direct]
+  OAuthResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+      redirect_uri:
+        type: string
+      client_id:
+        type: string
+      client_secret:
+        type: string
