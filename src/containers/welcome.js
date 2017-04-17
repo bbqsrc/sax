@@ -99,6 +99,7 @@ export default class Welcome extends React.Component {
               autoCapitalize="none"
               autoCorrect={false}
               onChangeText={this.onInput.bind(this)}
+              onSubmitEditing={this.onFinishTapped.bind(this)}
               value={this.state.code} />
         </View>
         <Button onClick={this.onFinishTapped.bind(this)} bezelStyle="rounded" style={styles.button} title="Finish" />
@@ -117,6 +118,7 @@ export default class Welcome extends React.Component {
               autoCapitalize="none"
               autoCorrect={false}
               onChangeText={this.onInput.bind(this)}
+              onSubmitEditing={this.onLogInTapped.bind(this)}
               value={this.state.acct} />
         </View>
         <Button onClick={this.onLogInTapped.bind(this)} bezelStyle="rounded" style={styles.button} title="Log in"  />
