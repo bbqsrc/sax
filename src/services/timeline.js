@@ -4,30 +4,30 @@ import api from "../api"
 import StatusStreamReader from "../utilities/status-stream-reader"
 
 const generate = {
-  user: () => api.getHomeTimeline(),
-  local: () => api.getPublicTimeline(),
-  federated: () => api.getPublicTimeline()
+  user: (api) => api.getHomeTimeline(),
+  local: (api) => api.getPublicTimeline(),
+  federated: (api) => api.getPublicTimeline()
 }
 
 export default class TimelineService {
-  constructor() {
+  constructor(host, accessToken) {
+    this.api = api
+
     this.init("user")
     this.init("local")
     this.init("federated")
   }
 
   init(key) {
-    generate[key]().then(statuses => {
+    generate[key](this.api).then(statuses => {
       store.dispatch(addStatuses(statuses, key))
 
-      this[key] = this.connectStream(key)
-    }).catch(error => {
-      alert(error)
+      this[key] = this.connectStream(this.api, key)
     })
   }
 
-  connectStream(channel, tag) {
-    const stream = new StatusStreamReader(channel, tag)
+  connectStream(api, channel, tag) {
+    const stream = new StatusStreamReader(api, channel, tag)
 
     stream.onUpdate = (status) => {
       store.dispatch(addStatus(status, channel, tag))

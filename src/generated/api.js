@@ -58,7 +58,6 @@ const __ = {
         }
       }
     } else if (body) {
-      console.log(body)
       req = req.send(body)
     }
 
@@ -71,7 +70,6 @@ const __ = {
       }
 
       if (model) {
-        console.log("create model")
         return __.createModel(model, res.body)
       }
 

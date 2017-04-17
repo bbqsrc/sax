@@ -1,8 +1,7 @@
-import { models } from "../generated/api"
-import api from "../api"
+import { models } from "../api"
 
 export default class StatusStreamReader {
-  constructor(channel, tag) {
+  constructor(api, channel, tag) {
     this.socket = api.stream(channel, tag)
 
     this.socket.onclose = (err, err2) => {
@@ -32,7 +31,7 @@ export default class StatusStreamReader {
       }
       case "update": {
         const model = new models.Status(JSON.parse(payload))
-
+        
         this.onUpdate(model)
         break
       }

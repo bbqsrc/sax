@@ -29,11 +29,30 @@ export function updateStatus(status) {
   }
 }
 
-export function setAccessToken(accessToken) {
+export function setAccessToken(host, accessToken) {
   return {
     type: types.SET_ACCESS_TOKEN,
     payload: {
+      host,
       accessToken
+    }
+  }
+}
+
+export function replyTo(status) {
+  return {
+    type: types.REPLY_TO,
+    payload: {
+      status
+    }
+  }
+}
+
+export function setStatusInput(text) {
+  return {
+    type: types.SET_STATUS_INPUT,
+    payload: {
+      text
     }
   }
 }

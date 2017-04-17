@@ -3,8 +3,9 @@ import ReactNative, { Linking } from "react-native-macos"
 import moment from "moment"
 
 import url from "url"
-import api from "../api"
 import parseHtml from "../utilities/status-html-parser"
+import store from "../store"
+import api from "../api"
 
 const {
   AppRegistry,
@@ -78,7 +79,17 @@ class StatusView extends React.Component {
   }
 
   reply() {
+    const { status, actions } = this.props
+    const accts = [status.account.acct]
+      
+    if (status.reblog) {
+      accts.unshift(status.reblog.account.acct)
+    }
 
+    const input = accts.map(x => `@${x}`).join(" ") + " "
+
+    store.dispatch(actions.replyTo(status))
+    store.dispatch(actions.setStatusInput(input))
   }
 
   boost() {
@@ -94,7 +105,7 @@ class StatusView extends React.Component {
     
     res.then(status => {
       actions.updateStatus(status)
-    }).catch(alert)
+    })
   }
 
   favourite() {
@@ -110,7 +121,7 @@ class StatusView extends React.Component {
 
     res.then(status => {
       actions.updateStatus(status)
-    }).catch(alert)
+    })
   }
 
   get boostStyle() {

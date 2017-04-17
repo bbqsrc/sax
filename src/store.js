@@ -1,35 +1,45 @@
+import { AsyncStorage } from "react-native-macos"
 import { createStore, applyMiddleware, combineReducers } from "redux"
 import * as types from "./action-types"
+import api from "./api"
 
 const initialState = {
   route: null,
   accessToken: null,
+  host: null,
 
   statuses: {
     home: [],
     local: [],
     federated: []
-  }
+  },
+
+  replyTo: null,
+  statusInput: ""
 }
 
 function reducer(state = initialState, action = {}) {
   switch (action.type) {
+  case types.SET_STATUS_INPUT:
+    console.log(action.payload.text)
+    return { ...state, statusInput: action.payload.text }
+  case types.REPLY_TO:
+    return { ...state, replyTo: action.payload.status }
   case types.SET_ACCESS_TOKEN:
-    return { ...state, accessToken: action.payload.accessToken }
+    AsyncStorage.setItem("ACCESS_TOKEN", JSON.stringify(action.payload))
+    api.configure(action.payload.host, action.payload.accessToken)
+    return { ...state, host: action.payload.host, accessToken: action.payload.accessToken }
   case types.SET_ROUTE:
     return { ...state, route: action.payload.route }
   case types.UPDATE_STATUS: {
     let statuses = { ...state.statuses }
     const { status } = action.payload
 
-    console.log("UPDATE")
-
     const replace = (oldList) => {
       const list = oldList.slice()
       const i = list.findIndex(x => x.id === status.id)
 
       if (i > -1) {
-        console.log("FIND ", i)
         list[i] = status
       }
 
