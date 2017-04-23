@@ -32,19 +32,36 @@ function fromNow(date) {
 export default
 class StatusView extends React.Component {
   render() {
-    const { status } = this.props
+    const { status, inset } = this.props
 
     let extraMessage
+    let controls
 
     if (status.reblog) {
       extraMessage = <Text style={[styles.secondaryLabel, { marginTop: 4 }]}>Boosted by {status.account.displayName}</Text>
+    }
+
+    if (!inset) {
+      controls = (
+        <View style={styles.buttonColumn}>
+          <TouchableHighlight style={styles.replyButton} onPress={this.reply.bind(this)}>
+            <Image source={require("../images/reply.png")} style={styles.icon} />
+          </TouchableHighlight>
+          <TouchableHighlight style={this.boostStyle} onPress={this.boost.bind(this)}>
+            <Image source={require("../images/retweet.png")} style={[styles.icon, { marginBottom: 4 }]} />
+          </TouchableHighlight>
+          <TouchableHighlight style={this.favouriteStyle} onPress={this.favourite.bind(this)}>
+            <Image source={require("../images/star.png")} style={styles.icon} />
+          </TouchableHighlight>
+        </View>
+      )
     }
 
     const creator = status.reblog ? status.reblog.account : status.account
     const avatarUrl = url.resolve(api.baseUrl, creator.avatar || "/avatars/original/missing.png")
 
     return (
-      <View style={styles.border}>
+      <View style={this.props.inset ? styles.insetBorder : styles.border}>
         <Image source={{ uri: avatarUrl }} style={{ height: 48, width: 48, borderRadius: 4 }}/>
         
         <View style={{ flex: 1, marginLeft: 12 }}>
@@ -61,17 +78,7 @@ class StatusView extends React.Component {
               </View>
               {extraMessage}
             </View>
-            <View style={styles.buttonColumn}>
-              <TouchableHighlight style={styles.replyButton} onPress={this.reply.bind(this)}>
-                <Image source={require("../images/reply.png")} style={styles.icon} />
-              </TouchableHighlight>
-              <TouchableHighlight style={this.boostStyle} onPress={this.boost.bind(this)}>
-                <Image source={require("../images/retweet.png")} style={[styles.icon, { marginBottom: 4 }]} />
-              </TouchableHighlight>
-              <TouchableHighlight style={this.favouriteStyle} onPress={this.favourite.bind(this)}>
-                <Image source={require("../images/star.png")} style={styles.icon} />
-              </TouchableHighlight>
-            </View>
+            {controls}
           </View>
         </View>
       </View>
@@ -146,6 +153,19 @@ class StatusView extends React.Component {
 }
 
 const styles = {
+  insetBorder: {
+    opacity: 0.7,
+    flex: 1,
+    backgroundColor: "white",
+    flexDirection: "row",
+    padding: 8,
+    margin: 8,
+    borderRadius: 4,
+    borderWidth: 0.5,
+    borderColor: '#d6d7da',
+    overflow: "hidden"
+  },
+
   statusContainer: {
   },
 

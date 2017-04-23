@@ -8,10 +8,9 @@ import * as actions from "../actions"
 import { connect } from "react-redux"
 import { bindActionCreators } from "redux"
 
-import Status from "./status"
-import StatusStreamReader from "../utilities/status-stream-reader"
+import Notification from "./notification"
 
-class StatusListView extends React.Component {
+class NotificationListView extends React.Component {
   constructor(props) {
     super(props)
 
@@ -20,13 +19,13 @@ class StatusListView extends React.Component {
     })
     
     this.state = {
-      dataSource: ds.cloneWithRows(props.statuses),
+      dataSource: ds.cloneWithRows(props.notifications),
     }
   }
 
   componentWillReceiveProps(newProps) {
     this.setState({
-      dataSource: this.state.dataSource.cloneWithRows(newProps.statuses)
+      dataSource: this.state.dataSource.cloneWithRows(newProps.notifications)
     })
   }
 
@@ -48,7 +47,7 @@ class StatusListView extends React.Component {
       renderSeparator={this._renderSeparator}
       enableEmptySections={true}
       dataSource={this.state.dataSource}
-      renderRow={(rowData) => <Status status={rowData} {...this.props} />}
+      renderRow={(rowData) => <Notification notification={rowData} {...this.props} />}
     />
   }
 }
@@ -60,19 +59,4 @@ const bind = (thing, stateFunc) => {
 	)(thing)
 }
 
-const UserTimelineListView = bind(
-	class UserTimelineListView extends StatusListView {},
-  (state) => ({ statuses: state.statuses.home })
-)
-
-const LocalTimelineListView = bind(
-	class LocalTimelineListView extends StatusListView {},
-  (state) => ({ statuses: state.statuses.local })
-)
-
-const FederatedTimelineListView = bind(
-	class FederatedTimelineListView extends StatusListView {},
-  (state) => ({ statuses: state.statuses.federated })
-)
-
-export { UserTimelineListView, LocalTimelineListView, FederatedTimelineListView }
+export default bind(NotificationListView, (state) => ({ notifications: state.notifications }))

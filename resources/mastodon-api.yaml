@@ -102,6 +102,19 @@ paths:
     get:
       operationId: getNotifications
       summary: Get Notifications
+      parameters:
+        - name: max_id
+          in: query
+          type: integer
+          description: Get a list of statuses with ID less than or equal this value
+        - name: since_id
+          in: query
+          type: integer
+          description: Get a list of statuses with ID greater than this value
+        - name: limit
+          in: query
+          type: integer
+          description: Maximum number of accounts to get (Default 20, Max 40)
       responses:
         200:
           description: Notifications
@@ -227,7 +240,6 @@ paths:
           description: Home timeline
           schema:
             $ref: "#/definitions/Timeline"
-
   /timelines/public:
     get:
       operationId: getPublicTimeline

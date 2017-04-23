@@ -14,26 +14,30 @@ const initialState = {
     federated: []
   },
 
+  notifications: [],
+
   replyTo: null,
   statusInput: ""
 }
 
 function reducer(state = initialState, action = {}) {
-  switch (action.type) {
+  const { type, payload } = action
+
+  switch (type) {
   case types.SET_STATUS_INPUT:
-    console.log(action.payload.text)
-    return { ...state, statusInput: action.payload.text }
+    console.log(payload.text)
+    return { ...state, statusInput: payload.text }
   case types.REPLY_TO:
-    return { ...state, replyTo: action.payload.status }
+    return { ...state, replyTo: payload.status }
   case types.SET_ACCESS_TOKEN:
-    AsyncStorage.setItem("ACCESS_TOKEN", JSON.stringify(action.payload))
-    api.configure(action.payload.host, action.payload.accessToken)
-    return { ...state, host: action.payload.host, accessToken: action.payload.accessToken }
+    AsyncStorage.setItem("ACCESS_TOKEN", JSON.stringify(payload))
+    api.configure(payload.host, payload.accessToken)
+    return { ...state, host: payload.host, accessToken: payload.accessToken }
   case types.SET_ROUTE:
-    return { ...state, route: action.payload.route }
+    return { ...state, route: payload.route }
   case types.UPDATE_STATUS: {
     let statuses = { ...state.statuses }
-    const { status } = action.payload
+    const { status } = payload
 
     const replace = (oldList) => {
       const list = oldList.slice()
@@ -55,18 +59,18 @@ function reducer(state = initialState, action = {}) {
   case types.ADD_STATUS: {
     let statuses = { ...state.statuses }
 
-    switch (action.payload.channel) {
+    switch (payload.channel) {
     case "user":
       statuses.home = statuses.home.slice()
-      statuses.home.unshift(action.payload.status)
+      statuses.home.unshift(payload.status)
       break
     case "local":
       statuses.local = statuses.local.slice()
-      statuses.local.unshift(action.payload.status)
+      statuses.local.unshift(payload.status)
       break
     case "federated":
       statuses.federated = statuses.federated.slice()
-      statuses.federated.unshift(action.payload.status)
+      statuses.federated.unshift(payload.status)
       break
     }
 
@@ -75,19 +79,24 @@ function reducer(state = initialState, action = {}) {
   case types.ADD_STATUSES: {
     let statuses = { ...state.statuses }
 
-    switch (action.payload.channel) {
+    switch (payload.channel) {
     case "user":
-      statuses.home = action.payload.statuses.concat(statuses.home)
+      statuses.home = payload.statuses.concat(statuses.home)
       break
     case "local":
-      statuses.local = action.payload.statuses.concat(statuses.local)
+      statuses.local = payload.statuses.concat(statuses.local)
       break
     case "federated":
-      statuses.federated = action.payload.statuses.concat(statuses.federated)
+      statuses.federated = payload.statuses.concat(statuses.federated)
       break
     }
 
     return { ...state, statuses }
+  }
+  case types.ADD_NOTIFICATIONS: {
+    const notifications = payload.notifications.concat(state.notifications)
+    
+    return { ...state, notifications }
   }}
 
   return state

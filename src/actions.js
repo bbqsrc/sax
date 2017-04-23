@@ -56,3 +56,12 @@ export function setStatusInput(text) {
     }
   }
 }
+
+export function addNotifications(notifications) {
+  return {
+    type: types.ADD_NOTIFICATIONS,
+    payload: {
+      notifications
+    }
+  }
+}

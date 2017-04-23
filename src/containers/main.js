@@ -10,6 +10,7 @@ import {
   LocalTimelineListView,
   FederatedTimelineListView
 } from "../components/status-list" 
+import NotificationsListView from "../components/notification-list"
 
 import StatusComposer from "../components/status-composer"
 import TimelineService from "../services/timeline"
@@ -63,8 +64,7 @@ export default class Main extends React.Component {
     case 0:
       return <UserTimelineListView />
     case 1:
-      //return <NotificationsListView />
-      return <View />
+      return <NotificationsListView />
     case 2:
       return <LocalTimelineListView />
     case 3:

@@ -207,6 +207,10 @@ class MastodonApi {
   getNotifications(params = {}) {
     const o = {}
     o.model = [Notification]
+    o.query = {}
+    o.query["max_id"] = params.maxId
+    o.query["since_id"] = params.sinceId
+    o.query["limit"] = params.limit
     return __.request.call(this, "get", `/api/v1/notifications`, o)
   }
   /*
@@ -495,6 +499,37 @@ class Card extends __.Immutable.Record({
   }
 }
 
+class Context extends __.Immutable.Record({
+  "ancestors": undefined,
+  "descendants": undefined,
+}) {
+  constructor(params) {
+    const p = {}
+  
+    if (params["ancestors"] != null) {
+      p.ancestors = __.createModel([Status], params["ancestors"])
+    }
+    if (params["descendants"] != null) {
+      p.descendants = __.createModel([Status], params["descendants"])
+    }
+
+    super(p)
+  }
+
+  toJSON() {
+    const o = {}
+
+    if (this.ancestors != null) {
+      o["ancestors"] = this.ancestors.map(x => x.toJSON())
+    }
+    if (this.descendants != null) {
+      o["descendants"] = this.descendants.map(x => x.toJSON())
+    }
+    
+    return o
+  }
+}
+
 class Error extends __.Immutable.Record({
   "error": undefined,
 }) {
@@ -614,6 +649,7 @@ class Notification extends __.Immutable.Record({
   "type": undefined,
   "createdAt": undefined,
   "account": undefined,
+  "status": undefined,
 }) {
   constructor(params) {
     __.hasRequired(Object.keys(params), ["id", "type", "created_at", "account"])
@@ -625,6 +661,9 @@ class Notification extends __.Immutable.Record({
     p.type = Type.from(params["type"])
     p.createdAt = params["created_at"]
     p.account = __.createModel(Account, params["account"])
+    if (params["status"] != null) {
+      p.status = __.createModel(Status, params["status"])
+    }
 
     super(p)
   }
@@ -636,6 +675,9 @@ class Notification extends __.Immutable.Record({
     o["type"] = this.type.toJSON()
     o["created_at"] = this.createdAt
     o["account"] = this.account.toJSON()
+    if (this.status != null) {
+      o["status"] = this.status.toJSON()
+    }
     
     return o
   }
@@ -1016,6 +1058,7 @@ MastodonApi.models = {
   Application,
   Attachment,
   Card,
+  Context,
   Error,
   Instance,
   Mention,
